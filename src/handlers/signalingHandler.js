@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { USER_STATUS } from "../utils/constants.js";
 
-export class WebrtcHandler {
+export class SignalingHandler {
   constructor(io, userSocketMap, roomManager) {
     this.io = io;
     this.userSocketMap = userSocketMap;
@@ -33,13 +33,6 @@ export class WebrtcHandler {
     socket.to(socket.signalingRoom).emit("ice", candidate);
   }
 
-  handleCallEnd(socket) {
-    const userInfo = this.userSocketMap.get(socket.userName);
-    if (!userInfo) return;
-
-    this.endCall(socket, userInfo);
-  }
-
   setupCall(socket, callerInfo, calleeInfo, signalingRoom, offer) {
     // 상태 업데이트
     callerInfo.status = USER_STATUS.IN_CALL;
@@ -59,18 +52,6 @@ export class WebrtcHandler {
       calleeSocket.join(signalingRoom);
       calleeSocket.emit("offer", offer);
     }
-
-    this.roomManager.handleWaitingUpdate();
-  }
-
-  endCall(socket, userInfo) {
-    const oldRoom = userInfo.room;
-
-    userInfo.status = USER_STATUS.WAITING;
-    userInfo.room = "waiting";
-
-    socket.leave(oldRoom);
-    socket.join("waiting");
 
     this.roomManager.handleWaitingUpdate();
   }

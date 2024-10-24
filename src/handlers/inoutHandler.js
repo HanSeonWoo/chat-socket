@@ -20,6 +20,13 @@ export class InoutHandler {
     this.roomManager.handleWaitingUpdate();
   }
 
+  handleCallEnd(socket) {
+    const userInfo = this.userSocketMap.get(socket.userName);
+    if (!userInfo) return;
+
+    this.endCall(socket, userInfo);
+  }
+
   handleDisconnect(socket) {
     if (!socket.userName) return;
     console.log(
@@ -32,5 +39,17 @@ export class InoutHandler {
       this.userSocketMap.delete(socket.userName);
       this.roomManager.handleWaitingUpdate();
     }
+  }
+
+  endCall(socket, userInfo) {
+    const oldRoom = userInfo.room;
+
+    userInfo.status = USER_STATUS.WAITING;
+    userInfo.room = "waiting";
+
+    socket.leave(oldRoom);
+    socket.join("waiting");
+
+    this.roomManager.handleWaitingUpdate();
   }
 }
