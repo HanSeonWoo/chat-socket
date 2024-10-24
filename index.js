@@ -10,7 +10,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://rtc-admin.vercel.app/",
+    origin: "https://rtc-admin.vercel.app",
     methods: ["GET", "POST"],
     credentials: true,
   },
